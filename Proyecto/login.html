@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            width: 500px; /* Se ha aumentado el ancho para incluir la imagen */
+            display: none;
+            display: flex;
+            flex-direction: row;
+        }
+        .login-form {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .login-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #333;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+        button {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.9;
+        }
+        button:hover {
+            background-color: #45a049;
+            opacity: 1;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .register-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .register-link a:hover {
+            color: #388E3C;
+            text-decoration: underline;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <h1>Iniciar Sesión</h1>
+            <form id="loginForm">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Ingresar</button>
+            </form>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="register-link">
+                <a href="register.html">Registrarse</a>
+            </div>
+        </div>
+        <div class="login-image">
+            <img src="imagenes proyecto\login.jpg" alt="login">
+        </div>
+        
+
+    <script>
+        $(document).ready(function() {
+            // Mostrar el contenedor de login con un efecto de desvanecimiento
+            $('.login-container').fadeIn(1000);
+
+            $('#loginForm').on('submit', function(event) {
+                event.preventDefault();
+
+                const username = $('#username').val();
+                const password = $('#password').val();
+                const errorMessage = $('#errorMessage');
+
+                // Recuperar usuarios de localStorage
+                const users = JSON.parse(localStorage.getItem('users')) || {};
+
+                // Verificar si el usuario existe y si la contraseña es correcta
+                if (username in users && users[username] === password) {
+                    if (username === 'admin') {
+                        $('.login-container').fadeOut(500, function() {
+                            window.location.href = 'integrador.html';
+                        });
+                    } else {
+                        $('.login-container').fadeOut(500, function() {
+                            window.location.href = 'exhibicion.html';
+                        });
+                    }
+                } else {
+                    errorMessage.text('Usuario o contraseña incorrectos.').slideDown(500).delay(2000).slideUp(500);
+                }
+            });
+
+            // Efecto hover en los inputs
+            $('input[type="text"], input[type="password"]').on('focus', function() {
+                $(this).animate({borderWidth: '2px'}, 300);
+            }).on('blur', function() {
+                $(this).animate({borderWidth: '1px'}, 300);
+            });
+
+            // Animar el enlace de registro
+            $('.register-link a').hover(
+                function() {
+                    $(this).animate({fontSize: '18px'}, 300);
+                }, function() {
+                    $(this).animate({fontSize: '16px'}, 300);
+                }
+            );
+        });
+    </script>
+</body>
+</html>

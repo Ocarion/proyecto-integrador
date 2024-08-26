@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exhibición de Libros</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('imagenes proyecto/biblioteca.jpg'); /* Imagen de fondo */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 20px;
+            color: white; /* Cambiar color del texto para mejor legibilidad */
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            opacity: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra para mejorar la legibilidad */
+        }
+        .book-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            opacity: 0;
+        }
+        .book {
+            background-color: rgba(255, 255, 255, 0.8); /* Fondo semitransparente para los libros */
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: none;
+        }
+        .book:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .book img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .book-title {
+            font-size: 1.2em;
+            margin: 10px 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .book-description {
+            font-size: 0.9em;
+            color: #333; /* Ajuste de color para mejor legibilidad */
+            margin: 10px 0;
+        }
+        .book-summary {
+            font-size: 0.8em;
+            color: #555; /* Ajuste de color para mejor legibilidad */
+            margin: 10px 0;
+        }
+        .book-actions {
+            margin-top: 10px;
+        }
+        .book-actions button {
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .book-actions button:hover {
+            background-color: #45a049;
+        }
+        .delete-button {
+            background-color: #f44336;
+        }
+        .delete-button:hover {
+            background-color: #e53935;
+        }
+        .gestor-button {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+        }
+        .gestor-button:hover {
+            background-color: #1e88e5;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Libros en Exhibición</h1>
+    <a href="gestor.html" class="gestor-button">Ir al Gestor</a>
+    <div class="book-grid" id="booksTableBody">
+        <!-- Los libros se agregarán aquí dinámicamente -->
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Mostrar el título con un desvanecimiento
+            $('h1').fadeTo(1000, 1);
+
+            // Cargar libros desde localStorage
+            const books = JSON.parse(localStorage.getItem('books')) || [];
+
+            const booksTableBody = $('#booksTableBody');
+
+            books.forEach((book, index) => {
+                const bookDiv = $(`
+                    <div class="book">
+                        <img src="${book.image}" alt="${book.title}">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-description">${book.description}</div>
+                        <div class="book-summary">${book.summary}</div>
+                        <div class="book-actions">
+                            <button onclick="editBook(${index})">Editar</button>
+                            <button class="delete-button" onclick="deleteBook(${index})">Eliminar</button>
+                        </div>
+                    </div>
+                `);
+
+                booksTableBody.append(bookDiv);
+
+                // Efecto de aparición de los libros uno por uno
+                bookDiv.delay(index * 200).fadeIn(500);
+            });
+
+            // Desvanecer en la grid completa de libros
+            $('.book-grid').fadeTo(1000, 1);
+        });
+
+        function editBook(index) {
+            const books = JSON.parse(localStorage.getItem('books')) || [];
+            const book = books[index];
+            const newTitle = prompt("Editar título:", book.title);
+            const newDescription = prompt("Editar descripción:", book.description);
+            const newSummary = prompt("Editar resumen:", book.summary);
+            
+            if (newTitle !== null && newDescription !== null && newSummary !== null) {
+                books[index].title = newTitle;
+                books[index].description = newDescription;
+                books[index].summary = newSummary;
+                localStorage.setItem('books', JSON.stringify(books));
+                location.reload();
+            }
+        }
+
+        function deleteBook(index) {
+            const books = JSON.parse(localStorage.getItem('books')) || [];
+            if (confirm("¿Estás seguro de que deseas eliminar este libro?")) {
+                books.splice(index, 1);
+                localStorage.setItem('books', JSON.stringify(books));
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

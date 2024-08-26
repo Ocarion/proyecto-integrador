@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Libros</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            opacity: 0;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            width: 100%;
+            max-width: 1200px;
+        }
+        #form-container {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        #books-container {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        #bookForm {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin: 10px 0 5px;
+            color: #333;
+        }
+        input[type="text"], input[type="number"], input[type="file"], textarea {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #back-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        #back-link a:hover {
+            text-decoration: underline;
+        }
+        .book {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 200px; /* Ajusta según sea necesario */
+            margin-bottom: 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .book img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .book-title {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 1.2em;
+        }
+        .book-description {
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .book-actions {
+            margin-top: 10px;
+        }
+        .book-actions button {
+            margin: 5px;
+            padding: 5px 10px;
+        }
+        /* Estilo para la imagen del logo */
+        #logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Gestor de Libros</h1>
+    <div id="app">
+        <!-- Imagen del logo -->
+        <img id="logo" src="imagenes proyecto\icono.jpg" alt="icono">
+        <div id="form-container">
+            <h2>Agregar/Actualizar Libro</h2>
+            <form id="bookForm">
+                <label for="title">Título:</label>
+                <input type="text" id="title" name="title" required>
+                <label for="author">Autor:</label>
+                <input type="text" id="author" name="author" required>
+                <label for="year">Año de Publicación:</label>
+                <input type="number" id="year" name="year" required>
+                <label for="isbn">ISBN:</label>
+                <input type="text" id="isbn" name="isbn" required>
+                <label for="description">Descripción:</label>
+                <textarea id="description" name="description" required></textarea>
+                <label for="image">Imagen:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+                <input type="hidden" id="editIndex" value="">
+                <button type="submit">Guardar Libro</button>
+            </form>
+            <div id="back-link">
+                <a href="integrador.html">Volver a la Lista de Libros</a>
+            </div>
+            <div id="admin-access" style="margin-top: 20px;">
+                <h3>Acceso del Administrador</h3>
+                <label for="adminCode">Código de Acceso:</label>
+                <input type="text" id="adminCode" required>
+                <button id="viewUsersBtn">Ver Usuarios</button>
+            </div>
+        </div>
+        <div id="books-container">
+            <h2>Libros Guardados</h2>
+            <div id="booksList">
+                <!-- Los libros se agregarán aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            // Animar la aparición del título, el logo y el contenedor de la aplicación
+            $('h1').fadeTo(1000, 1);
+            $('#logo').fadeTo(1000, 1).slideDown(1000);
+            $('#app').delay(500).fadeTo(1000, 1);
+
+            // Animar los contenedores de forma individual
+            $('#form-container').delay(1000).animate({opacity: 1, transform: 'translateY(0)'}, 800);
+            $('#books-container').delay(1500).animate({opacity: 1, transform: 'translateY(0)'}, 800);
+
+            // Cargar libros desde localStorage
+            const books = JSON.parse(localStorage.getItem('books')) || [];
+
+            function renderBooks() {
+                $('#booksList').empty();
+                books.forEach((book, index) => {
+                    const bookDiv = $(`
+                        <div class="book">
+                            <img src="${book.image}" alt="${book.title}">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-description">${book.description}</div>
+                            <div class="book-actions">
+                                <button onclick="editBook(${index})">Editar</button>
+                                <button onclick="deleteBook(${index})">Eliminar</button>
+                            </div>
+                        </div>
+                    `);
+                    $('#booksList').append(bookDiv);
+                    bookDiv.delay(index * 200).animate({opacity: 1, transform: 'translateY(0)'}, 800);
+                });
+            }
+
+            // Inicializar la lista de libros
+            renderBooks();
+
+            $('#bookForm').on('submit', function(event) {
+                event.preventDefault();
+
+                const title = $('#title').val();
+                const author = $('#author').val();
+                const year = $('#year').val();
+                const isbn = $('#isbn').val();
+                const description = $('#description').val();
+                const imageFile = $('#image')[0].files[0];
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imageDataUrl = event.target.result;
+                    
+                    const newBook = { title, author, year, isbn, description, image: imageDataUrl };
+                    const editIndex = $('#editIndex').val();
+
+                    if (editIndex === '') {
+                        // Agregar nuevo libro
+                        books.push(newBook);
+                    } else {
+                        // Actualizar libro existente
+                        books[editIndex] = newBook;
+                        $('#editIndex').val('');
+                    }
+
+                    // Guardar libros en localStorage
+                    localStorage.setItem('books', JSON.stringify(books));
+
+                    // Volver a renderizar la lista de libros
+                    renderBooks();
+
+                    // Limpiar formulario
+                    $('#bookForm')[0].reset();
+
+                    alert('Libro guardado con éxito');
+                };
+
+                reader.readAsDataURL(imageFile);
+            });
+
+            $('#viewUsersBtn').on('click', function() {
+                const adminCode = $('#adminCode').val();
+                const correctCode = "admin123"; // Código de acceso para el administrador
+
+                if (adminCode === correctCode) {
+                    window.location.href = 'usuarios.html'; // Redirigir a la lista de usuarios
+                } else {
+                    alert('Código de acceso incorrecto.');
+                }
+            });
+        });
+
+        function editBook(index) {
+            const book = JSON.parse(localStorage.getItem('books'))[index];
+            $('#title').val(book.title);
+            $('#author').val(book.author);
+            $('#year').val(book.year);
+            $('#isbn').val(book.isbn);
+            $('#description').val(book.description);
+            $('#editIndex').val(index);
+        }
+
+        function deleteBook(index) {
+            const books = JSON.parse(localStorage.getItem('books')) || [];
+            books.splice(index, 1);
+            localStorage.setItem('books', JSON.stringify(books));
+            renderBooks();
+        }
+
+        function renderBooks() {
+            $('#booksList').empty();
+            const books = JSON.parse(localStorage.getItem('books')) || [];
+            books.forEach((book, index) => {
+                const bookDiv = $(`
+                    <div class="book">
+                        <img src="${book.image}" alt="${book.title}">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-description">${book.description}</div>
+                        <div class="book-actions">
+                            <button onclick="editBook(${index})">Editar</button>
+                            <button onclick="deleteBook(${index})">Eliminar</button>
+                        </div>
+                    </div>
+                `);
+                $('#booksList').append(bookDiv);
+                bookDiv.delay(index * 200).animate({opacity: 1, transform: 'translateY(0)'}, 800);
+            });
+        }
+    </script>
+</body>
+</html>
